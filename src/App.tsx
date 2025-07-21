@@ -113,14 +113,16 @@ const App: React.FC = () => {
       </footer>
 
       {/* Custom Styles */}
-      <style jsx>{`
-        .bg-grid-pattern {
-          background-image: 
-            linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .bg-grid-pattern {
+            background-image: 
+              linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+          }
+        `
+      }} />
     </div>
   );
 };

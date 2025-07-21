@@ -113,14 +113,19 @@ const TokenPocketWalletConnector: React.FC = () => {
   const checkWalletAvailability = useCallback((): void => {
     const isEthereumAvailable = typeof window.ethereum !== 'undefined';
     
-    if (isEthereumAvailable) {
+    if (isEthereumAvailable && window.ethereum) {
       setWalletInfo({
-        isTokenPocketAvailable: window.ethereum.isTokenPocket || false,
-        isMetaMaskAvailable: window.ethereum.isMetaMask || false,
-        isSafePalAvailable: window.ethereum.isSafePal || false
+        isTokenPocketAvailable: Boolean(window.ethereum.isTokenPocket),
+        isMetaMaskAvailable: Boolean(window.ethereum.isMetaMask),
+        isSafePalAvailable: Boolean(window.ethereum.isSafePal)
       });
     } else {
       console.log('No wallet detected');
+      setWalletInfo({
+        isTokenPocketAvailable: false,
+        isMetaMaskAvailable: false,
+        isSafePalAvailable: false
+      });
     }
   }, []);
 
@@ -251,9 +256,10 @@ const TokenPocketWalletConnector: React.FC = () => {
     try {
       if (!window.ethereum) return;
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      // Ethers v6 compatibility
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
       const balance = await provider.getBalance(address);
-      const balanceInBNB = ethers.utils.formatEther(balance);
+      const balanceInBNB = ethers.formatEther(balance);
 
       setWalletState(prev => ({
         ...prev,

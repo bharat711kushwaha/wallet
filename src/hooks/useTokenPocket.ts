@@ -1,4 +1,3 @@
-// useTokenPocket.ts - TypeScript Custom Hook
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 
@@ -58,7 +57,7 @@ interface ConnectionResult {
 interface SendTransactionResult {
   success: boolean;
   hash?: string;
-  tx?: ethers.providers.TransactionResponse;
+  tx?: any; // Changed from ethers.providers.TransactionResponse
   error?: string;
 }
 
@@ -66,11 +65,11 @@ interface TransactionHistoryItem {
   hash: string;
   from: string;
   to: string | null;
-  value: ethers.BigNumber;
+  value: string; // Changed from ethers.BigNumber to string
   blockNumber: number;
   timestamp?: number;
-  gasPrice: ethers.BigNumber;
-  gasUsed?: ethers.BigNumber;
+  gasPrice: string; // Changed from ethers.BigNumber to string
+  gasUsed?: string; // Changed from ethers.BigNumber to string
 }
 
 // Hook return type
@@ -124,7 +123,7 @@ export const useTokenPocket = (): UseTokenPocketReturn => {
   // Check TokenPocket availability
   const checkAvailability = useCallback((): boolean => {
     const isAvailable = typeof window.ethereum !== 'undefined' && 
-                       Boolean(window.ethereum.isTokenPocket);
+                       Boolean(window.ethereum?.isTokenPocket);
     
     setState(prev => ({
       ...prev,
@@ -229,9 +228,10 @@ export const useTokenPocket = (): UseTokenPocketReturn => {
     try {
       if (!window.ethereum || !address) return;
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      // Ethers v6 compatibility
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
       const balance = await provider.getBalance(address);
-      const balanceInBNB = ethers.utils.formatEther(balance);
+      const balanceInBNB = ethers.formatEther(balance);
 
       setState(prev => ({
         ...prev,
@@ -259,12 +259,12 @@ export const useTokenPocket = (): UseTokenPocketReturn => {
         throw new Error('Wallet not connected');
       }
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-      const signer = provider.getSigner();
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
+      const signer = await provider.getSigner();
 
       const tx = await signer.sendTransaction({
         to,
-        value: ethers.utils.parseEther(amount.toString())
+        value: ethers.parseEther(amount.toString())
       });
 
       return { success: true, hash: tx.hash, tx };
@@ -281,7 +281,7 @@ export const useTokenPocket = (): UseTokenPocketReturn => {
     try {
       if (!state.address || !window.ethereum) return [];
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
       const currentBlock = await provider.getBlockNumber();
       
       const transactions: TransactionHistoryItem[] = [];
@@ -289,21 +289,23 @@ export const useTokenPocket = (): UseTokenPocketReturn => {
       // Get recent blocks and filter transactions
       for (let i = 0; i < Math.min(limit * 10, 1000) && transactions.length < limit; i++) {
         try {
-          const block = await provider.getBlockWithTransactions(currentBlock - i);
-          const userTxs = block.transactions.filter(tx => 
+          const block = await provider.getBlock(currentBlock - i, true);
+          if (!block || !block.transactions) continue;
+          
+          const userTxs = block.transactions.filter((tx: any) => 
             tx.from?.toLowerCase() === state.address?.toLowerCase() ||
             tx.to?.toLowerCase() === state.address?.toLowerCase()
           );
           
-          const mappedTxs: TransactionHistoryItem[] = userTxs.map(tx => ({
+          const mappedTxs: TransactionHistoryItem[] = userTxs.map((tx: any) => ({
             hash: tx.hash,
             from: tx.from,
             to: tx.to,
-            value: tx.value,
+            value: ethers.formatEther(tx.value || '0'),
             blockNumber: tx.blockNumber || 0,
             timestamp: block.timestamp,
-            gasPrice: tx.gasPrice,
-            gasUsed: tx.gasLimit // gasUsed is available after mining
+            gasPrice: ethers.formatUnits(tx.gasPrice || '0', 'gwei'),
+            gasUsed: ethers.formatUnits(tx.gasLimit || '0', 'wei')
           }));
           
           transactions.push(...mappedTxs);
@@ -359,13 +361,13 @@ export const useTokenPocket = (): UseTokenPocketReturn => {
         throw new Error('Wallet not connected');
       }
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
       const tokenContract = new ethers.Contract(tokenAddress, tokenABI, provider);
       
       const balance = await tokenContract.balanceOf(state.address);
       const decimals = await tokenContract.decimals();
       
-      return ethers.utils.formatUnits(balance, decimals);
+      return ethers.formatUnits(balance, decimals);
     } catch (error) {
       console.error('Failed to get token balance:', error);
       return '0';
@@ -472,85 +474,3 @@ export const useTokenPocket = (): UseTokenPocketReturn => {
   };
 };
 
-// Usage example component:
-/*
-import React from 'react';
-import { useTokenPocket } from './useTokenPocket';
-
-const MyWalletComponent: React.FC = () => {
-  const {
-    isConnected,
-    address,
-    balance,
-    isLoading,
-    error,
-    formattedAddress,
-    isOnBNBChain,
-    connect,
-    disconnect,
-    sendBNB,
-    addToken
-  } = useTokenPocket();
-
-  const handleConnect = async (): Promise<void> => {
-    const result = await connect();
-    if (result.success) {
-      console.log('Connected to:', result.address);
-    } else {
-      console.error('Connection failed:', result.error);
-    }
-  };
-
-  const handleSendBNB = async (): Promise<void> => {
-    const result = await sendBNB('0x742d35Cc6634C0532925a3b8D24D6C56c8E92e5b', '0.1');
-    if (result.success) {
-      console.log('Transaction hash:', result.hash);
-    } else {
-      console.error('Transaction failed:', result.error);
-    }
-  };
-
-  const handleAddToken = async (): Promise<void> => {
-    const added = await addToken(
-      '0x55d398326f99059ff775485246999027b3197955', // USDT
-      'USDT',
-      18
-    );
-    console.log('Token added:', added);
-  };
-
-  if (isLoading) {
-    return <div>Connecting...</div>;
-  }
-
-  if (!isConnected) {
-    return (
-      <div>
-        <button onClick={handleConnect}>
-          Connect TokenPocket
-        </button>
-        {error && <p style={{color: 'red'}}>{error}</p>}
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <h3>Wallet Connected</h3>
-      <p>Address: {formattedAddress}</p>
-      <p>Balance: {balance} BNB</p>
-      <p>Network: {isOnBNBChain ? 'BNB Chain' : 'Wrong Network'}</p>
-      
-      <div>
-        <button onClick={handleSendBNB}>Send 0.1 BNB</button>
-        <button onClick={handleAddToken}>Add USDT Token</button>
-        <button onClick={disconnect}>Disconnect</button>
-      </div>
-      
-      {error && <p style={{color: 'red'}}>{error}</p>}
-    </div>
-  );
-};
-
-export default MyWalletComponent;
-*/
