@@ -287,7 +287,7 @@ const WalletDashboard: React.FC = () => {
                   <span className="text-blue-200 font-medium">Address:</span>
                   <button 
                     onClick={copyAddress} 
-                    className="bg-white bg-opacity-20 hover:bg-opacity-30 px-3 py-1 rounded-lg transition-all duration-200 font-mono text-sm"
+                    className="bg-black bg-opacity-20 hover:bg-opacity-30 px-3 py-1 rounded-lg transition-all duration-200 font-mono text-sm"
                     title="Click to copy"
                   >
                     {formattedAddress}
