@@ -1,4 +1,4 @@
-// src/components/WalletDashboard.tsx
+// src/components/WalletDashboard.tsx - Complete Tailwind CSS Version
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTokenPocket } from '../hooks/useTokenPocket';
 import { TOKEN_ADDRESSES } from '../utils/constants';
@@ -226,10 +226,11 @@ const WalletDashboard: React.FC = () => {
   // Show connection required message
   if (!isConnected) {
     return (
-      <div className="wallet-dashboard not-connected">
-        <div className="connection-required">
-          <h3>🔐 Wallet Connection Required</h3>
-          <p>Please connect your TokenPocket wallet to view the dashboard.</p>
+      <div className="max-w-4xl mx-auto mt-8">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 text-center">
+          <div className="text-6xl mb-4">🔐</div>
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">Wallet Connection Required</h3>
+          <p className="text-gray-600">Please connect your TokenPocket wallet to view the dashboard.</p>
         </div>
       </div>
     );
@@ -238,249 +239,362 @@ const WalletDashboard: React.FC = () => {
   // Show wrong network message
   if (!isOnBNBChain) {
     return (
-      <div className="wallet-dashboard wrong-network">
-        <div className="network-warning">
-          <h3>⚠️ Wrong Network</h3>
-          <p>Please switch to BNB Smart Chain to use this dashboard.</p>
-          <p>Current network is not supported.</p>
+      <div className="max-w-4xl mx-auto mt-8">
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl shadow-xl p-8 text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h3 className="text-2xl font-bold text-amber-800 mb-4">Wrong Network</h3>
+          <p className="text-amber-700 mb-2">Please switch to BNB Smart Chain to use this dashboard.</p>
+          <p className="text-amber-600">Current network is not supported.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="wallet-dashboard">
+    <div className="max-w-6xl mx-auto mt-8 space-y-6">
       {/* Notification */}
       {notification && (
-        <div className={`notification ${notification.type}`}>
-          {notification.message}
-          <button onClick={() => setNotification(null)}>×</button>
+        <div className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg border-l-4 ${
+          notification.type === 'success' 
+            ? 'bg-green-50 border-green-500 text-green-800' 
+            : notification.type === 'error'
+            ? 'bg-red-50 border-red-500 text-red-800'
+            : 'bg-blue-50 border-blue-500 text-blue-800'
+        }`}>
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{notification.message}</span>
+            <button 
+              onClick={() => setNotification(null)}
+              className="ml-4 text-gray-500 hover:text-gray-700 font-bold text-lg"
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
 
       {/* Wallet Overview Header */}
-      <div className="dashboard-header">
-        <div className="wallet-summary">
-          <h2>💼 Wallet Dashboard</h2>
-          <div className="address-section">
-            <span className="address-label">Address:</span>
-            <span className="address-value" onClick={copyAddress} title="Click to copy">
-              {formattedAddress}
-            </span>
-          </div>
-          <div className="balance-section">
-            <span className="balance-amount">{balance} BNB</span>
-            <button className="refresh-btn" onClick={updateBalance} title="Refresh balance">
-              🔄
-            </button>
-          </div>
-        </div>
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 px-6 py-8 text-white">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold flex items-center">
+                <span className="text-4xl mr-3">💼</span>
+                Wallet Dashboard
+              </h2>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-blue-200 font-medium">Address:</span>
+                  <button 
+                    onClick={copyAddress} 
+                    className="bg-white bg-opacity-20 hover:bg-opacity-30 px-3 py-1 rounded-lg transition-all duration-200 font-mono text-sm"
+                    title="Click to copy"
+                  >
+                    {formattedAddress}
+                  </button>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-3xl font-bold">{balance} BNB</span>
+                  <button 
+                    onClick={updateBalance} 
+                    className="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-lg transition-all duration-200"
+                    title="Refresh balance"
+                  >
+                    🔄
+                  </button>
+                </div>
+              </div>
+            </div>
 
-        <div className="dashboard-actions">
-          <button className="disconnect-btn" onClick={disconnect}>
-            Disconnect
-          </button>
+            <div className="mt-6 md:mt-0">
+              <button 
+                onClick={disconnect}
+                className="bg-red-500 hover:bg-red-600 text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 shadow-lg"
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="tab-navigation">
-        <button 
-          className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          📊 Overview
-        </button>
-        <button 
-          className={`tab ${activeTab === 'tokens' ? 'active' : ''}`}
-          onClick={() => setActiveTab('tokens')}
-        >
-          🪙 Tokens
-        </button>
-        <button 
-          className={`tab ${activeTab === 'transactions' ? 'active' : ''}`}
-          onClick={() => setActiveTab('transactions')}
-        >
-          📋 Transactions
-        </button>
-        <button 
-          className={`tab ${activeTab === 'send' ? 'active' : ''}`}
-          onClick={() => setActiveTab('send')}
-        >
-          💸 Send
-        </button>
-      </div>
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+        <div className="flex border-b border-gray-200">
+          <button 
+            className={`flex-1 py-4 px-6 text-center font-medium transition-all duration-200 ${
+              activeTab === 'overview' 
+                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveTab('overview')}
+          >
+            <span className="text-lg mr-2">📊</span>
+            Overview
+          </button>
+          <button 
+            className={`flex-1 py-4 px-6 text-center font-medium transition-all duration-200 ${
+              activeTab === 'tokens' 
+                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveTab('tokens')}
+          >
+            <span className="text-lg mr-2">🪙</span>
+            Tokens
+          </button>
+          <button 
+            className={`flex-1 py-4 px-6 text-center font-medium transition-all duration-200 ${
+              activeTab === 'transactions' 
+                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveTab('transactions')}
+          >
+            <span className="text-lg mr-2">📋</span>
+            Transactions
+          </button>
+          <button 
+            className={`flex-1 py-4 px-6 text-center font-medium transition-all duration-200 ${
+              activeTab === 'send' 
+                ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+            }`}
+            onClick={() => setActiveTab('send')}
+          >
+            <span className="text-lg mr-2">💸</span>
+            Send
+          </button>
+        </div>
 
-      {/* Tab Content */}
-      <div className="tab-content">
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="overview-content">
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h4>BNB Balance</h4>
-                <p className="stat-value">{balance} BNB</p>
-              </div>
-              <div className="stat-card">
-                <h4>Tokens</h4>
-                <p className="stat-value">{tokenBalances.length}</p>
-              </div>
-              <div className="stat-card">
-                <h4>Recent Transactions</h4>
-                <p className="stat-value">{transactions.length}</p>
-              </div>
-            </div>
-
-            <div className="recent-activity">
-              <h4>Recent Activity</h4>
-              {transactions.slice(0, 3).map((tx) => (
-                <div key={tx.hash} className="activity-item">
-                  <span className={`activity-type ${tx.type}`}>
-                    {tx.type === 'sent' ? '📤' : '📥'}
-                  </span>
-                  <div className="activity-details">
-                    <span className="activity-amount">{tx.value} BNB</span>
-                    <span className="activity-hash">{tx.hash.slice(0, 10)}...</span>
-                  </div>
+        {/* Tab Content */}
+        <div className="p-6">
+          {/* Overview Tab */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+                  <h4 className="text-lg font-semibold mb-2">BNB Balance</h4>
+                  <p className="text-3xl font-bold">{balance} BNB</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tokens Tab */}
-        {activeTab === 'tokens' && (
-          <div className="tokens-content">
-            <div className="section-header">
-              <h4>Token Balances</h4>
-              <button onClick={loadTokenBalances} disabled={isLoadingTokens}>
-                {isLoadingTokens ? '🔄' : '↻'} Refresh
-              </button>
-            </div>
-
-            {isLoadingTokens ? (
-              <div className="loading-state">Loading tokens...</div>
-            ) : tokenBalances.length === 0 ? (
-              <div className="empty-state">
-                <p>No token balances found</p>
-                <small>Only tokens with balance {'>'} 0 are displayed</small>
+                <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
+                  <h4 className="text-lg font-semibold mb-2">Tokens</h4>
+                  <p className="text-3xl font-bold">{tokenBalances.length}</p>
+                </div>
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+                  <h4 className="text-lg font-semibold mb-2">Recent Transactions</h4>
+                  <p className="text-3xl font-bold">{transactions.length}</p>
+                </div>
               </div>
-            ) : (
-              <div className="token-list">
-                {tokenBalances.map((token) => (
-                  <div key={token.symbol} className="token-item">
-                    <div className="token-info">
-                      <span className="token-symbol">{token.symbol}</span>
-                      <span className="token-balance">{token.balance}</span>
-                    </div>
-                    <button 
-                      className="add-token-btn"
-                      onClick={() => handleAddToken(token)}
-                    >
-                      Add to Wallet
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* Transactions Tab */}
-        {activeTab === 'transactions' && (
-          <div className="transactions-content">
-            <div className="section-header">
-              <h4>Transaction History</h4>
-              <button onClick={loadTransactionHistory} disabled={isLoadingTransactions}>
-                {isLoadingTransactions ? '🔄' : '↻'} Refresh
-              </button>
-            </div>
-
-            {isLoadingTransactions ? (
-              <div className="loading-state">Loading transactions...</div>
-            ) : transactions.length === 0 ? (
-              <div className="empty-state">
-                <p>No transactions found</p>
-                <small>Your transaction history will appear here</small>
-              </div>
-            ) : (
-              <div className="transaction-list">
-                {transactions.map((tx) => (
-                  <div key={tx.hash} className="transaction-item">
-                    <div className="tx-icon">
-                      {tx.type === 'sent' ? '📤' : '📥'}
-                    </div>
-                    <div className="tx-details">
-                      <div className="tx-main">
-                        <span className={`tx-type ${tx.type}`}>
+              <div className="bg-gray-50 rounded-xl p-6">
+                <h4 className="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h4>
+                {transactions.slice(0, 3).length > 0 ? (
+                  <div className="space-y-3">
+                    {transactions.slice(0, 3).map((tx) => (
+                      <div key={tx.hash} className="bg-white p-4 rounded-lg border border-gray-200 flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <span className="text-2xl">
+                            {tx.type === 'sent' ? '📤' : '📥'}
+                          </span>
+                          <div>
+                            <div className="font-medium text-gray-800">{tx.value} BNB</div>
+                            <div className="text-sm text-gray-500 font-mono">{tx.hash.slice(0, 20)}...</div>
+                          </div>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          tx.type === 'sent' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                        }`}>
                           {tx.type === 'sent' ? 'Sent' : 'Received'}
                         </span>
-                        <span className="tx-amount">{tx.value} BNB</span>
                       </div>
-                      <div className="tx-meta">
-                        <span className="tx-hash">{tx.hash.slice(0, 20)}...</span>
-                        <span className="tx-time">{formatTimestamp(tx.timestamp)}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <div className="text-4xl mb-2">📝</div>
+                    <p>No recent activity</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Tokens Tab */}
+          {activeTab === 'tokens' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xl font-semibold text-gray-800">Token Balances</h4>
+                <button 
+                  onClick={loadTokenBalances} 
+                  disabled={isLoadingTokens}
+                  className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                >
+                  <span className={isLoadingTokens ? 'animate-spin' : ''}>{isLoadingTokens ? '🔄' : '↻'}</span>
+                  <span>Refresh</span>
+                </button>
+              </div>
+
+              {isLoadingTokens ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin text-4xl mb-4">🔄</div>
+                  <p className="text-gray-600">Loading tokens...</p>
+                </div>
+              ) : tokenBalances.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-xl">
+                  <div className="text-4xl mb-4">🪙</div>
+                  <p className="text-gray-600 font-medium">No token balances found</p>
+                  <small className="text-gray-500">Only tokens with balance {'>'} 0 are displayed</small>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {tokenBalances.map((token) => (
+                    <div key={token.symbol} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-lg font-bold text-gray-800">{token.symbol}</span>
+                        <span className="text-2xl font-bold text-blue-600">{token.balance}</span>
+                      </div>
+                      <button 
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all duration-200 font-medium"
+                        onClick={() => handleAddToken(token)}
+                      >
+                        Add to Wallet
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Transactions Tab */}
+          {activeTab === 'transactions' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xl font-semibold text-gray-800">Transaction History</h4>
+                <button 
+                  onClick={loadTransactionHistory} 
+                  disabled={isLoadingTransactions}
+                  className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                >
+                  <span className={isLoadingTransactions ? 'animate-spin' : ''}>{isLoadingTransactions ? '🔄' : '↻'}</span>
+                  <span>Refresh</span>
+                </button>
+              </div>
+
+              {isLoadingTransactions ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin text-4xl mb-4">🔄</div>
+                  <p className="text-gray-600">Loading transactions...</p>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-xl">
+                  <div className="text-4xl mb-4">📋</div>
+                  <p className="text-gray-600 font-medium">No transactions found</p>
+                  <small className="text-gray-500">Your transaction history will appear here</small>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {transactions.map((tx) => (
+                    <div key={tx.hash} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
+                      <div className="flex items-center space-x-4">
+                        <div className="text-3xl">
+                          {tx.type === 'sent' ? '📤' : '📥'}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className={`font-semibold capitalize ${
+                              tx.type === 'sent' ? 'text-red-600' : 'text-green-600'
+                            }`}>
+                              {tx.type}
+                            </span>
+                            <span className="text-lg font-bold text-gray-800">{tx.value} BNB</span>
+                          </div>
+                          <div className="text-sm text-gray-500 space-y-1">
+                            <div className="font-mono">{tx.hash.slice(0, 30)}...</div>
+                            <div>{formatTimestamp(tx.timestamp)}</div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* Send Tab */}
-        {activeTab === 'send' && (
-          <div className="send-content">
-            <h4>Send BNB</h4>
-            
-            <form onSubmit={handleSendTransaction} className="send-form">
-              <div className="form-group">
-                <label htmlFor="recipient">Recipient Address:</label>
-                <input
-                  type="text"
-                  id="recipient"
-                  placeholder="0x..."
-                  value={sendForm.recipient}
-                  onChange={(e) => setSendForm(prev => ({ ...prev, recipient: e.target.value }))}
-                  disabled={sendForm.isLoading}
-                  required
-                />
-              </div>
+          {/* Send Tab */}
+          {activeTab === 'send' && (
+            <div className="max-w-2xl mx-auto">
+              <h4 className="text-xl font-semibold text-gray-800 mb-6">Send BNB</h4>
+              
+              <form onSubmit={handleSendTransaction} className="space-y-6">
+                <div>
+                  <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-2">
+                    Recipient Address:
+                  </label>
+                  <input
+                    type="text"
+                    id="recipient"
+                    placeholder="0x..."
+                    value={sendForm.recipient}
+                    onChange={(e) => setSendForm(prev => ({ ...prev, recipient: e.target.value }))}
+                    disabled={sendForm.isLoading}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 font-mono text-sm disabled:bg-gray-100"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="amount">Amount (BNB):</label>
-                <input
-                  type="number"
-                  id="amount"
-                  placeholder="0.0"
-                  step="0.0001"
-                  min="0"
-                  max={balance}
-                  value={sendForm.amount}
-                  onChange={(e) => setSendForm(prev => ({ ...prev, amount: e.target.value }))}
-                  disabled={sendForm.isLoading}
-                  required
-                />
-                <small>Available: {balance} BNB</small>
-              </div>
+                <div>
+                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+                    Amount (BNB):
+                  </label>
+                  <input
+                    type="number"
+                    id="amount"
+                    placeholder="0.0"
+                    step="0.0001"
+                    min="0"
+                    max={balance}
+                    value={sendForm.amount}
+                    onChange={(e) => setSendForm(prev => ({ ...prev, amount: e.target.value }))}
+                    disabled={sendForm.isLoading}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 disabled:bg-gray-100"
+                  />
+                  <small className="text-gray-500 mt-1 block">Available: {balance} BNB</small>
+                </div>
 
-              <button 
-                type="submit" 
-                className="send-btn"
-                disabled={sendForm.isLoading || !sendForm.recipient || !sendForm.amount}
-              >
-                {sendForm.isLoading ? 'Sending...' : 'Send BNB'}
-              </button>
-            </form>
-          </div>
-        )}
+                <button 
+                  type="submit" 
+                  disabled={sendForm.isLoading || !sendForm.recipient || !sendForm.amount}
+                  className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+                >
+                  {sendForm.isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin text-lg">🔄</div>
+                      <span>Sending...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-lg">💸</span>
+                      <span>Send BNB</span>
+                    </div>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Error Display */}
       {walletError && (
-        <div className="error-display">
-          <p>⚠️ {walletError}</p>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+          <div className="flex items-center space-x-3">
+            <span className="text-red-500 text-2xl">⚠️</span>
+            <p className="text-red-800 font-medium">{walletError}</p>
+          </div>
         </div>
       )}
     </div>
